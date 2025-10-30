@@ -13,7 +13,7 @@ import { UserModule } from './user/user.module';
       port: parseInt(process.env.DB_PORT) || 5432,
       username: process.env.DB_USERNAME || 'postgres',
       password: process.env.DB_PASSWORD || 'postgres',
-      database: process.env.DB_DATABASE || 'furniture_db',
+      database: process.env.DB_DATABASE || 'twin',
       entities: [__dirname + '/**/*.entity{.ts,.js}'],
       synchronize: true,
     }),

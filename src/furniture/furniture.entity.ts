@@ -16,7 +16,7 @@ export class Furniture {
   @Column('decimal', { precision: 10, scale: 2 })
   price: number;
 
-  @Column('simple-array')
+  @Column('simple-array',{nullable:true})
   images: string[];
 
   @Column('decimal', { precision: 10, scale: 2 })

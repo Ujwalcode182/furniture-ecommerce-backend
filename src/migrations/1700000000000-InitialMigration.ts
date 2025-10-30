@@ -2,8 +2,11 @@ import { MigrationInterface, QueryRunner } from 'typeorm';
 
 export class InitialMigration1700000000000 implements MigrationInterface {
   public async up(queryRunner: QueryRunner): Promise<void> {
+    await queryRunner.query(`CREATE SCHEMA IF NOT EXISTS "public"`);
+    await queryRunner.query(`SET search_path TO "public"`);
+    
     await queryRunner.query(`
-      CREATE TABLE "users" (
+      CREATE TABLE "public"."users" (
         "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
         "name" varchar NOT NULL,
         "email" varchar UNIQUE NOT NULL,
@@ -14,7 +17,7 @@ export class InitialMigration1700000000000 implements MigrationInterface {
     `);
 
     await queryRunner.query(`
-      CREATE TABLE "furniture" (
+      CREATE TABLE "public"."furniture" (
         "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
         "name" varchar NOT NULL,
         "description" text NOT NULL,
@@ -32,7 +35,7 @@ export class InitialMigration1700000000000 implements MigrationInterface {
     `);
 
     await queryRunner.query(`
-      CREATE TABLE "orders" (
+      CREATE TABLE "public"."orders" (
         "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
         "userId" uuid NOT NULL,
         "totalAmount" decimal(10,2) NOT NULL,
@@ -40,12 +43,12 @@ export class InitialMigration1700000000000 implements MigrationInterface {
         "shippingAddress" varchar NOT NULL,
         "createdAt" timestamp DEFAULT now(),
         "updatedAt" timestamp DEFAULT now(),
-        CONSTRAINT "FK_orders_user" FOREIGN KEY ("userId") REFERENCES "users"("id")
+        CONSTRAINT "FK_orders_user" FOREIGN KEY ("userId") REFERENCES "public"."users"("id")
       )
     `);
 
     await queryRunner.query(`
-      CREATE TABLE "order_items" (
+      CREATE TABLE "public"."order_items" (
         "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
         "orderId" uuid NOT NULL,
         "furnitureId" uuid NOT NULL,
@@ -53,13 +56,13 @@ export class InitialMigration1700000000000 implements MigrationInterface {
         "price" decimal(10,2) NOT NULL,
         "createdAt" timestamp DEFAULT now(),
         "updatedAt" timestamp DEFAULT now(),
-        CONSTRAINT "FK_order_items_order" FOREIGN KEY ("orderId") REFERENCES "orders"("id") ON DELETE CASCADE,
-        CONSTRAINT "FK_order_items_furniture" FOREIGN KEY ("furnitureId") REFERENCES "furniture"("id")
+        CONSTRAINT "FK_order_items_order" FOREIGN KEY ("orderId") REFERENCES "public"."orders"("id") ON DELETE CASCADE,
+        CONSTRAINT "FK_order_items_furniture" FOREIGN KEY ("furnitureId") REFERENCES "public"."furniture"("id")
       )
     `);
 
     await queryRunner.query(`
-      CREATE TABLE "reviews" (
+      CREATE TABLE "public"."reviews" (
         "id" uuid PRIMARY KEY DEFAULT uuid_generate_v4(),
         "furnitureId" uuid NOT NULL,
         "userId" uuid NOT NULL,
@@ -67,19 +70,19 @@ export class InitialMigration1700000000000 implements MigrationInterface {
         "comment" text NOT NULL,
         "createdAt" timestamp DEFAULT now(),
         "updatedAt" timestamp DEFAULT now(),
-        CONSTRAINT "FK_reviews_furniture" FOREIGN KEY ("furnitureId") REFERENCES "furniture"("id"),
-        CONSTRAINT "FK_reviews_user" FOREIGN KEY ("userId") REFERENCES "users"("id")
+        CONSTRAINT "FK_reviews_furniture" FOREIGN KEY ("furnitureId") REFERENCES "public"."furniture"("id"),
+        CONSTRAINT "FK_reviews_user" FOREIGN KEY ("userId") REFERENCES "public"."users"("id")
       )
     `);
 
     await queryRunner.query(`
-      INSERT INTO "users" ("id", "name", "email", "address") VALUES
+      INSERT INTO "public"."users" ("id", "name", "email", "address") VALUES
       ('11111111-1111-1111-1111-111111111111', 'John Doe', 'john@example.com', '123 Main St'),
       ('22222222-2222-2222-2222-222222222222', 'Jane Smith', 'jane@example.com', '456 Oak Ave')
     `);
 
     await queryRunner.query(`
-      INSERT INTO "furniture" ("id", "name", "description", "price", "images", "width", "height", "depth", "category", "inStock", "stockQuantity") VALUES
+      INSERT INTO "public"."furniture" ("id", "name", "description", "price", "images", "width", "height", "depth", "category", "inStock", "stockQuantity") VALUES
       ('aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa', 'Modern Sofa', 'Comfortable 3-seater sofa with soft cushions', 899.99, ARRAY['https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800', 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800'], 220, 90, 95, 'Sofas', true, 10),
       ('bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb', 'Wooden Dining Table', 'Elegant 6-seater dining table made from oak wood', 1299.99, ARRAY['https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800', 'https://images.unsplash.com/photo-1555041469-a586c61ea9bc?w=800'], 180, 75, 90, 'Tables', true, 5),
       ('cccccccc-cccc-cccc-cccc-cccccccccccc', 'Ergonomic Office Chair', 'Adjustable office chair with lumbar support', 499.99, ARRAY['https://images.unsplash.com/photo-1549497538-303791108f95?w=800', 'https://images.unsplash.com/photo-1586023492125-27b2c045efd7?w=800'], 65, 120, 70, 'Chairs', true, 15),
@@ -89,11 +92,11 @@ export class InitialMigration1700000000000 implements MigrationInterface {
   }
 
   public async down(queryRunner: QueryRunner): Promise<void> {
-    await queryRunner.query(`DROP TABLE IF EXISTS "reviews"`);
-    await queryRunner.query(`DROP TABLE IF EXISTS "order_items"`);
-    await queryRunner.query(`DROP TABLE IF EXISTS "orders"`);
-    await queryRunner.query(`DROP TABLE IF EXISTS "furniture"`);
-    await queryRunner.query(`DROP TABLE IF EXISTS "users"`);
+    await queryRunner.query(`DROP TABLE IF EXISTS "public"."reviews"`);
+    await queryRunner.query(`DROP TABLE IF EXISTS "public"."order_items"`);
+    await queryRunner.query(`DROP TABLE IF EXISTS "public"."orders"`);
+    await queryRunner.query(`DROP TABLE IF EXISTS "public"."furniture"`);
+    await queryRunner.query(`DROP TABLE IF EXISTS "public"."users"`);
   }
 }
 
